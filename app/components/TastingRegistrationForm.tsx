@@ -1,22 +1,29 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/components/ui/use-toast"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useStore, type Tasting, type Coffee } from "@/lib/store"
-import { Star, Plus, Minus } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useStore, type Tasting, type Coffee } from "@/lib/store";
+import { Star, Plus, Minus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function TastingRegistrationForm() {
-  const { toast } = useToast()
-  const router = useRouter()
-  const addTasting = useStore((state) => state.addTasting)
-  const coffees = useStore((state) => state.coffees)
+  const { toast } = useToast();
+  const router = useRouter();
+  const addTasting = useStore((state) => state.addTasting);
+  const coffees = useStore((state) => state.coffees);
 
   const [tasting, setTasting] = useState<Partial<Tasting>>({
     date: new Date().toISOString().split("T")[0],
@@ -29,73 +36,96 @@ export default function TastingRegistrationForm() {
     sweetness: "",
     aftertaste: "",
     notes: "",
-  })
+  });
 
-  const [image, setImage] = useState<File | null>(null)
+  const [image, setImage] = useState<File | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setTasting({ ...tasting, [e.target.name]: e.target.value })
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setTasting({ ...tasting, [e.target.name]: e.target.value });
+  };
 
   const handleSelectChange = (name: string, value: string) => {
-    setTasting({ ...tasting, [name]: value })
-  }
+    setTasting({ ...tasting, [name]: value });
+  };
 
   const handleRatingChange = (newRating: number) => {
-    setTasting({ ...tasting, rating: newRating })
-  }
+    setTasting({ ...tasting, rating: newRating });
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0])
+      setImage(e.target.files[0]);
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!tasting.coffeeId) {
       toast({
         title: "Error",
         description: "Please select a coffee",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    const tastingData = { ...tasting }
+    const tastingData = { ...tasting };
     if (image) {
-      tastingData.image = image
+      tastingData.image = image;
     }
 
-    addTasting(tastingData as Tasting)
+    addTasting(tastingData as Tasting);
     toast({
       title: "Success",
       description: "Tasting added successfully",
-    })
-    router.push("/")
-  }
+    });
+    router.push("/");
+  };
 
-  const brewingMethods = ["V60", "Chemex", "French Press", "AeroPress", "Espresso", "Moka Pot"]
+  const brewingMethods = [
+    "V60",
+    "Chemex",
+    "French Press",
+    "AeroPress",
+    "Espresso",
+    "Moka Pot",
+  ];
 
   return (
     <Card className="bg-white dark:bg-gray-800 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-primary">Add New Tasting</CardTitle>
+        <CardTitle className="text-2xl font-bold text-primary">
+          Add New Tasting
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="coffeeId" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="coffeeId"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Coffee
               </Label>
-              <Select name="coffeeId" onValueChange={(value) => handleSelectChange("coffeeId", value)}>
+              <Select
+                name="coffeeId"
+                onValueChange={(value) => handleSelectChange("coffeeId", value)}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select coffee" />
                 </SelectTrigger>
                 <SelectContent>
                   {coffees.map((coffee: Coffee) => (
-                    <SelectItem key={coffee.id} value={coffee.id}>
+                    <SelectItem
+                      key={coffee.id}
+                      value={coffee.id}
+                    >
                       {coffee.name}
                     </SelectItem>
                   ))}
@@ -103,13 +133,26 @@ export default function TastingRegistrationForm() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="date" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="date"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Date
               </Label>
-              <Input id="date" name="date" type="date" value={tasting.date} onChange={handleChange} className="mt-1" />
+              <Input
+                id="date"
+                name="date"
+                type="date"
+                value={tasting.date}
+                onChange={handleChange}
+                className="mt-1"
+              />
             </div>
             <div>
-              <Label htmlFor="brewingMethod" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="brewingMethod"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Brewing Method
               </Label>
               <div className="mt-1 flex flex-wrap gap-2">
@@ -117,7 +160,9 @@ export default function TastingRegistrationForm() {
                   <Button
                     key={method}
                     type="button"
-                    variant={tasting.brewingMethod === method ? "default" : "outline"}
+                    variant={
+                      tasting.brewingMethod === method ? "default" : "outline"
+                    }
                     onClick={() => handleSelectChange("brewingMethod", method)}
                     className="text-sm"
                   >
@@ -127,7 +172,10 @@ export default function TastingRegistrationForm() {
               </div>
             </div>
             <div>
-              <Label htmlFor="rating" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="rating"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Rating
               </Label>
               <div className="mt-1 flex items-center space-x-2">
@@ -135,7 +183,9 @@ export default function TastingRegistrationForm() {
                   <Star
                     key={star}
                     className={`cursor-pointer ${
-                      star <= (tasting.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+                      star <= (tasting.rating || 0)
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-300"
                     }`}
                     onClick={() => handleRatingChange(star)}
                   />
@@ -144,7 +194,9 @@ export default function TastingRegistrationForm() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleRatingChange(Math.max((tasting.rating || 0) - 0.5, 0))}
+                  onClick={() =>
+                    handleRatingChange(Math.max((tasting.rating || 0) - 0.5, 0))
+                  }
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
@@ -152,7 +204,9 @@ export default function TastingRegistrationForm() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleRatingChange(Math.min((tasting.rating || 0) + 0.5, 5))}
+                  onClick={() =>
+                    handleRatingChange(Math.min((tasting.rating || 0) + 0.5, 5))
+                  }
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -160,10 +214,16 @@ export default function TastingRegistrationForm() {
               </div>
             </div>
             <div>
-              <Label htmlFor="acidity" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="acidity"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Acidity
               </Label>
-              <Select name="acidity" onValueChange={(value) => handleSelectChange("acidity", value)}>
+              <Select
+                name="acidity"
+                onValueChange={(value) => handleSelectChange("acidity", value)}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select acidity" />
                 </SelectTrigger>
@@ -175,10 +235,16 @@ export default function TastingRegistrationForm() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="body" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="body"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Body
               </Label>
-              <Select name="body" onValueChange={(value) => handleSelectChange("body", value)}>
+              <Select
+                name="body"
+                onValueChange={(value) => handleSelectChange("body", value)}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select body" />
                 </SelectTrigger>
@@ -190,10 +256,18 @@ export default function TastingRegistrationForm() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="bitterness" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="bitterness"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Bitterness
               </Label>
-              <Select name="bitterness" onValueChange={(value) => handleSelectChange("bitterness", value)}>
+              <Select
+                name="bitterness"
+                onValueChange={(value) =>
+                  handleSelectChange("bitterness", value)
+                }
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select bitterness" />
                 </SelectTrigger>
@@ -205,10 +279,18 @@ export default function TastingRegistrationForm() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="sweetness" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="sweetness"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Sweetness
               </Label>
-              <Select name="sweetness" onValueChange={(value) => handleSelectChange("sweetness", value)}>
+              <Select
+                name="sweetness"
+                onValueChange={(value) =>
+                  handleSelectChange("sweetness", value)
+                }
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select sweetness" />
                 </SelectTrigger>
@@ -221,7 +303,10 @@ export default function TastingRegistrationForm() {
             </div>
           </div>
           <div>
-            <Label htmlFor="flavorNotes" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Label
+              htmlFor="flavorNotes"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Flavor Notes
             </Label>
             <Textarea
@@ -233,7 +318,10 @@ export default function TastingRegistrationForm() {
             />
           </div>
           <div>
-            <Label htmlFor="aftertaste" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Label
+              htmlFor="aftertaste"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Aftertaste
             </Label>
             <Textarea
@@ -245,16 +333,35 @@ export default function TastingRegistrationForm() {
             />
           </div>
           <div>
-            <Label htmlFor="notes" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Label
+              htmlFor="notes"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Additional Notes
             </Label>
-            <Textarea id="notes" name="notes" value={tasting.notes} onChange={handleChange} className="mt-1" />
+            <Textarea
+              id="notes"
+              name="notes"
+              value={tasting.notes}
+              onChange={handleChange}
+              className="mt-1"
+            />
           </div>
           <div>
-            <Label htmlFor="image" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Label
+              htmlFor="image"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Upload Image
             </Label>
-            <Input id="image" name="image" type="file" onChange={handleImageUpload} className="mt-1" accept="image/*" />
+            <Input
+              id="image"
+              name="image"
+              type="file"
+              onChange={handleImageUpload}
+              className="mt-1"
+              accept="image/*"
+            />
           </div>
           <Button
             type="submit"
@@ -265,6 +372,5 @@ export default function TastingRegistrationForm() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
-

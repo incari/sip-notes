@@ -1,26 +1,35 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/components/ui/use-toast"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useStore, type Coffee } from "@/lib/store"
-import ImageUploadProcessor from "./ImageUploadProcessor"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useStore, type Coffee } from "@/lib/store";
+import ImageUploadProcessor from "./ImageUploadProcessor";
+import { useToast } from "@/hooks/use-toast";
 
 interface CoffeeRegistrationFormProps {
-  initialCoffee?: Coffee
+  initialCoffee?: Coffee;
 }
 
-export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistrationFormProps) {
-  const { toast } = useToast()
-  const router = useRouter()
-  const addCoffee = useStore((state) => state.addCoffee)
-  const updateCoffee = useStore((state) => state.updateCoffee)
+export default function CoffeeRegistrationForm({
+  initialCoffee,
+}: CoffeeRegistrationFormProps) {
+  const { toast } = useToast();
+  const router = useRouter();
+  const addCoffee = useStore((state) => state.addCoffee);
+  const updateCoffee = useStore((state) => state.updateCoffee);
 
   const [coffee, setCoffee] = useState<Partial<Coffee>>(
     initialCoffee || {
@@ -39,59 +48,64 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
       price: "",
       currency: "USD",
       weight: "250",
-    },
-  )
+    }
+  );
 
-  const [image, setImage] = useState<File | null>(null)
+  const [image, setImage] = useState<File | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setCoffee({ ...coffee, [e.target.name]: e.target.value })
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setCoffee({ ...coffee, [e.target.name]: e.target.value });
+  };
 
   const handleSelectChange = (name: string, value: string) => {
-    setCoffee({ ...coffee, [name]: value })
-  }
+    setCoffee({ ...coffee, [name]: value });
+  };
 
   const handleExtractedData = (data: Partial<Coffee>) => {
-    setCoffee((current) => ({ ...current, ...data }))
-  }
+    setCoffee((current) => ({ ...current, ...data }));
+  };
 
   const handleImageUpload = (file: File) => {
-    setImage(file)
-  }
+    setImage(file);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!coffee.name) {
       toast({
         title: "Error",
         description: "Coffee name is required",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    const coffeeData = { ...coffee }
+    const coffeeData = { ...coffee };
     if (image) {
-      coffeeData.image = image
+      coffeeData.image = image;
     }
 
     if (initialCoffee) {
-      updateCoffee(initialCoffee.id, coffeeData)
+      updateCoffee(initialCoffee.id, coffeeData);
     } else {
-      addCoffee(coffeeData as Coffee)
+      addCoffee(coffeeData as Coffee);
     }
 
     toast({
       title: "Success",
       description: `Coffee ${initialCoffee ? "updated" : "added"} successfully`,
-    })
-    router.push("/")
-  }
+    });
+    router.push("/");
+  };
 
   return (
     <div className="space-y-6">
-      <ImageUploadProcessor onDataExtracted={handleExtractedData} onImageUpload={handleImageUpload} />
+      <ImageUploadProcessor
+        onDataExtracted={handleExtractedData}
+        onImageUpload={handleImageUpload}
+      />
 
       <Card className="bg-white dark:bg-gray-800 shadow-lg">
         <CardHeader>
@@ -100,51 +114,114 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="name"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Coffee Name
                 </Label>
-                <Input id="name" name="name" value={coffee.name} onChange={handleChange} required className="mt-1" />
+                <Input
+                  id="name"
+                  name="name"
+                  value={coffee.name}
+                  onChange={handleChange}
+                  required
+                  className="mt-1"
+                />
               </div>
               <div>
-                <Label htmlFor="roastery" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="roastery"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Roastery / Producer
                 </Label>
-                <Input id="roastery" name="roastery" value={coffee.roastery} onChange={handleChange} className="mt-1" />
+                <Input
+                  id="roastery"
+                  name="roastery"
+                  value={coffee.roastery}
+                  onChange={handleChange}
+                  className="mt-1"
+                />
               </div>
               <div>
-                <Label htmlFor="country" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="country"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Country
                 </Label>
-                <Input id="country" name="country" value={coffee.country} onChange={handleChange} className="mt-1" />
+                <Input
+                  id="country"
+                  name="country"
+                  value={coffee.country}
+                  onChange={handleChange}
+                  className="mt-1"
+                />
               </div>
               <div>
-                <Label htmlFor="region" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="region"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Region
                 </Label>
-                <Input id="region" name="region" value={coffee.region} onChange={handleChange} className="mt-1" />
+                <Input
+                  id="region"
+                  name="region"
+                  value={coffee.region}
+                  onChange={handleChange}
+                  className="mt-1"
+                />
               </div>
               <div>
-                <Label htmlFor="farmName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="farmName"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Farm Name
                 </Label>
-                <Input id="farmName" name="farmName" value={coffee.farmName} onChange={handleChange} className="mt-1" />
+                <Input
+                  id="farmName"
+                  name="farmName"
+                  value={coffee.farmName}
+                  onChange={handleChange}
+                  className="mt-1"
+                />
               </div>
               <div>
-                <Label htmlFor="variety" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="variety"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Variety
                 </Label>
-                <Input id="variety" name="variety" value={coffee.variety} onChange={handleChange} className="mt-1" />
+                <Input
+                  id="variety"
+                  name="variety"
+                  value={coffee.variety}
+                  onChange={handleChange}
+                  className="mt-1"
+                />
               </div>
               <div>
-                <Label htmlFor="processingMethod" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="processingMethod"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Processing Method
                 </Label>
                 <Select
                   name="processingMethod"
-                  onValueChange={(value) => handleSelectChange("processingMethod", value)}
+                  onValueChange={(value) =>
+                    handleSelectChange("processingMethod", value)
+                  }
                 >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select processing method" />
@@ -158,7 +235,10 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
                 </Select>
               </div>
               <div>
-                <Label htmlFor="altitude" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="altitude"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Altitude (MASL)
                 </Label>
                 <Input
@@ -171,7 +251,10 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
                 />
               </div>
               <div>
-                <Label htmlFor="harvestYear" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="harvestYear"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Harvest Year
                 </Label>
                 <Input
@@ -184,10 +267,18 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
                 />
               </div>
               <div>
-                <Label htmlFor="roastLevel" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="roastLevel"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Roast Level
                 </Label>
-                <Select name="roastLevel" onValueChange={(value) => handleSelectChange("roastLevel", value)}>
+                <Select
+                  name="roastLevel"
+                  onValueChange={(value) =>
+                    handleSelectChange("roastLevel", value)
+                  }
+                >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select roast level" />
                   </SelectTrigger>
@@ -201,7 +292,10 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
                 </Select>
               </div>
               <div>
-                <Label htmlFor="certification" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="certification"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Certification
                 </Label>
                 <Input
@@ -213,7 +307,10 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
                 />
               </div>
               <div>
-                <Label htmlFor="price" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="price"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Price
                 </Label>
                 <div className="mt-1 flex space-x-2">
@@ -229,7 +326,9 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
                   <Select
                     name="currency"
                     value={coffee.currency}
-                    onValueChange={(value) => handleSelectChange("currency", value)}
+                    onValueChange={(value) =>
+                      handleSelectChange("currency", value)
+                    }
                   >
                     <SelectTrigger className="w-24">
                       <SelectValue placeholder="Currency" />
@@ -243,7 +342,10 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
                 </div>
               </div>
               <div>
-                <Label htmlFor="weight" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="weight"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Weight (g)
                 </Label>
                 <Input
@@ -257,7 +359,10 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
               </div>
             </div>
             <div>
-              <Label htmlFor="flavorNotes" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Label
+                htmlFor="flavorNotes"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Flavor Notes
               </Label>
               <Textarea
@@ -278,6 +383,5 @@ export default function CoffeeRegistrationForm({ initialCoffee }: CoffeeRegistra
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-

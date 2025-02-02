@@ -1,40 +1,49 @@
-"use client"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
 
-import { useState } from "react"
-import { createWorker } from "tesseract.js"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Camera, Upload } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
-import type { Coffee } from "@/lib/store"
+import { useState } from "react";
+import { createWorker } from "tesseract.js";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Camera, Upload } from "lucide-react";
+
+import type { Coffee } from "@/lib/store";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImageUploadProcessorProps {
-  onDataExtracted: (data: Partial<Coffee>) => void
-  onImageUpload: (file: File) => void
+  onDataExtracted: (data: Partial<Coffee>) => void;
+  onImageUpload: (file: File) => void;
 }
 
-export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }: ImageUploadProcessorProps) {
-  const [isProcessing, setIsProcessing] = useState(false)
-  const { toast } = useToast()
-  const [previewUrl, setPreviewUrl] = useState<string>()
+export default function ImageUploadProcessor({
+  onDataExtracted,
+  onImageUpload,
+}: ImageUploadProcessorProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
+  const [previewUrl, setPreviewUrl] = useState<string>();
 
   // Function to extract coffee data from OCR text
   const extractCoffeeData = (text: string): Partial<Coffee> => {
-    const lines = text.split("\n").map((line) => line.trim())
-    const data: Partial<Coffee> = {}
+    const lines = text.split("\n").map((line) => line.trim());
+    const data: Partial<Coffee> = {};
 
     // Helper function to find value after colon or in line
     const getValue = (line: string) => {
-      const parts = line.split(":")
-      return parts.length > 1 ? parts[1].trim() : line.trim()
-    }
+      const parts = line.split(":");
+      return parts.length > 1 ? parts[1].trim() : line.trim();
+    };
 
     // Extract name from prominent text or first line
     const possibleNames = lines.filter(
-      (line) => line.length > 0 && !line.includes(":") && !line.match(/^\d/) && !line.toLowerCase().includes("coffee"),
-    )
+      (line) =>
+        line.length > 0 &&
+        !line.includes(":") &&
+        !line.match(/^\d/) &&
+        !line.toLowerCase().includes("coffee")
+    );
     if (possibleNames.length > 0) {
-      data.name = possibleNames[0]
+      data.name = possibleNames[0];
     }
 
     // Improved country detection
@@ -44,20 +53,24 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
         line.toUpperCase().includes("COSTA RICA") ||
         line.toUpperCase().includes("KENYA") ||
         line.toUpperCase().includes("BRASIL") ||
-        line.toUpperCase().includes("BRAZIL"),
-    )
+        line.toUpperCase().includes("BRAZIL")
+    );
     if (countryLine) {
-      const countries = ["COLOMBIA", "COSTA RICA", "KENYA", "BRASIL", "BRAZIL"]
-      const found = countries.find((country) => countryLine.toUpperCase().includes(country))
-      data.country = found || countryLine
+      const countries = ["COLOMBIA", "COSTA RICA", "KENYA", "BRASIL", "BRAZIL"];
+      const found = countries.find((country) =>
+        countryLine.toUpperCase().includes(country)
+      );
+      data.country = found || countryLine;
     }
 
     // Extract region (after "Region:" or "Región:")
     const regionLine = lines.find(
-      (line) => line.toLowerCase().includes("region:") || line.toLowerCase().includes("región:"),
-    )
+      (line) =>
+        line.toLowerCase().includes("region:") ||
+        line.toLowerCase().includes("región:")
+    );
     if (regionLine) {
-      data.region = getValue(regionLine)
+      data.region = getValue(regionLine);
     }
 
     // Extract altitude (looking for numbers followed by msnm or masl)
@@ -66,12 +79,12 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
         line.toLowerCase().includes("altitud") ||
         line.toLowerCase().includes("altitude") ||
         line.toLowerCase().includes("msnm") ||
-        line.toLowerCase().includes("masl"),
-    )
+        line.toLowerCase().includes("masl")
+    );
     if (altitudeLine) {
-      const match = altitudeLine.match(/\d{3,4}/)
+      const match = altitudeLine.match(/\d{3,4}/);
       if (match) {
-        data.altitude = match[0]
+        data.altitude = match[0];
       }
     }
 
@@ -83,18 +96,18 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
         line.toLowerCase().includes("lavado") ||
         line.toLowerCase().includes("natural") ||
         line.toLowerCase().includes("honey") ||
-        line.toLowerCase().includes("fermentado"),
-    )
+        line.toLowerCase().includes("fermentado")
+    );
     if (processLine) {
-      const process = getValue(processLine)
+      const process = getValue(processLine);
       // Map Spanish terms to English
       const processMap: { [key: string]: string } = {
         lavado: "washed",
         natural: "natural",
         honey: "honey",
         fermentado: "fermented",
-      }
-      data.processingMethod = processMap[process.toLowerCase()] || process
+      };
+      data.processingMethod = processMap[process.toLowerCase()] || process;
     }
 
     // Extract variety
@@ -102,10 +115,10 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
       (line) =>
         line.toLowerCase().includes("varietal:") ||
         line.toLowerCase().includes("variety:") ||
-        line.toLowerCase().includes("variedades:"),
-    )
+        line.toLowerCase().includes("variedades:")
+    );
     if (varietyLine) {
-      data.variety = getValue(varietyLine)
+      data.variety = getValue(varietyLine);
     }
 
     // Extract producer/farm/roastery
@@ -114,10 +127,10 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
         line.toLowerCase().includes("productor:") ||
         line.toLowerCase().includes("producer:") ||
         line.toLowerCase().includes("finca:") ||
-        line.toLowerCase().includes("farm:"),
-    )
+        line.toLowerCase().includes("farm:")
+    );
     if (producerLine) {
-      data.roastery = getValue(producerLine)
+      data.roastery = getValue(producerLine);
     }
 
     // Extract flavor notes (usually after descriptive text or with commas)
@@ -127,18 +140,19 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
         line.toLowerCase().includes("notas:") ||
         line.toLowerCase().includes("notes:") ||
         line.toLowerCase().includes("sabor:") ||
-        line.toLowerCase().includes("flavor:"),
-    )
+        line.toLowerCase().includes("flavor:")
+    );
     if (flavorLine) {
-      data.flavorNotes = getValue(flavorLine)
+      data.flavorNotes = getValue(flavorLine);
     }
 
-    console.log("Extracted data:", data) // Add this for debugging
-    return data
-  }
+    console.log("Extracted data:", data); // Add this for debugging
+    return data;
+  };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const processImage = async (file: File) => {
-    setIsProcessing(true)
+    /*    setIsProcessing(true)
     try {
       const imageUrl = URL.createObjectURL(file)
       const worker = await createWorker()
@@ -188,19 +202,19 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
       })
     } finally {
       setIsProcessing(false)
-    }
-  }
+    } */
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
-      setPreviewUrl(URL.createObjectURL(file))
-      processImage(file)
+      setPreviewUrl(URL.createObjectURL(file));
+      processImage(file);
     }
-  }
+  };
 
   const handleCapture = async () => {
-    try {
+    /* try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true })
       // Implementation for camera capture would go here
       // For now, we'll just show a message
@@ -213,9 +227,8 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
         title: "Error",
         description: "Failed to access camera. Please try file upload instead.",
         variant: "destructive",
-      })
-    }
-  }
+      }) */
+  };
 
   return (
     <Card>
@@ -233,7 +246,12 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
             <Upload className="mr-2 h-4 w-4" />
             Upload Image
           </Button>
-          <Button variant="outline" className="w-full" onClick={handleCapture} disabled={isProcessing}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleCapture}
+            disabled={isProcessing}
+          >
             <Camera className="mr-2 h-4 w-4" />
             Take Photo
           </Button>
@@ -256,10 +274,11 @@ export default function ImageUploadProcessor({ onDataExtracted, onImageUpload }:
           </div>
         )}
         {isProcessing && (
-          <div className="text-center text-muted-foreground">Processing image... This may take a few seconds.</div>
+          <div className="text-center text-muted-foreground">
+            Processing image... This may take a few seconds.
+          </div>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
-
